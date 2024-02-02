@@ -42,31 +42,13 @@ df = (spark.readStream
 
 # COMMAND ----------
 
-from delta.tables import *
-
-def upsert_to_delta(input_df, batch_id):
-    if spark._jsparkSession.catalog().tableExists(f'pizza_place_bronze.{table_name}'):
-        delta_df = DeltaTable.forName(spark, f'pizza_place_bronze.{table_name}')
-
-        (delta_df.alias('t')
-            .merge(input_df.alias('s'), 't.pizza_type_id = s.pizza_type_id')
-            .whenMatchedUpdateAll()
-            .whenNotMatchedInsertAll()
-            .execute()
-        )
-    else:
-        input_df.write.format('delta').mode('overwrite').saveAsTable(f'pizza_place_bronze.{table_name}')
-
-# COMMAND ----------
-
 (df.writeStream
     .format('delta')
     .outputMode('append')
     .option('checkpointLocation', checkpoint_path)
-    .foreachBatch(upsert_to_delta)
     .queryName('Pizza types merge')
     .trigger(availableNow=True)
-    .start()
+    .toTable(f'pizza_place_bronze.{table_name}')
 )
 
 # COMMAND ----------

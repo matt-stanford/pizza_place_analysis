@@ -6,7 +6,7 @@
 spark.sql(
     f'''
         CREATE SCHEMA IF NOT EXISTS pizza_place_bronze
-        LOCATION '{bronze_folder_path}'
+        LOCATION '{bronze_folder_path}/tables'
     '''
 )
 
@@ -15,6 +15,6 @@ spark.sql(
 spark.sql(
     f'''
         CREATE SCHEMA IF NOT EXISTS pizza_place_silver
-        LOCATION '{silver_folder_path}'
+        LOCATION '{silver_folder_path}/tables'
     '''
 )
