@@ -44,18 +44,15 @@ df = (spark.readStream
 
 # COMMAND ----------
 
-df.display()
-
-# COMMAND ----------
-
 from delta.tables import DeltaTable
 
 def upsert_to_delta(input_df, batch_id):
+
     updates_df = (input_df
         .withColumn('merge_id', col('pizza_id'))
         .union(input_df.withColumn('merge_id', lit(None)))
     )
-    
+
     delta_table = DeltaTable.forName(spark, silver_table_name)
     (delta_table
         .alias('original')
@@ -63,17 +60,20 @@ def upsert_to_delta(input_df, batch_id):
         .whenMatchedUpdate(
             set={'original.end_date': current_date(), 'original.status': lit('i')}
         )
-        .whenNotMatchedInsert(condition='updates.merge_id IS NULL')
+        .whenNotMatchedInsert(
+            condition='updates.merge_id IS NULL',
+            values = {
+                'original.pizza_id': 'updates.pizza_id',
+                'original.pizza_type_id': 'updates.pizza_type_id',
+                'original.size': 'updates.size',
+                'original.price': 'updates.price',
+                'original.start_date': 'updates.start_date',
+                'original.end_date': 'updates.end_date',
+                'original.status': 'updates.status'
+            }
+        )
         .execute()
     )
-
-# COMMAND ----------
-
-updates_df.where('merge_id IS NULL').display()
-
-# COMMAND ----------
-
-# .whenNotMatchedInsertAll(condition='merge_id IS NULL')
 
 # COMMAND ----------
 
