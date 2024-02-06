@@ -58,13 +58,20 @@ def upsert_to_delta(input_df, batch_id):
         .whenMatchedUpdate(
             set={'original.end_date': current_date(), 'original.status': lit('i')}
         )
-        .whenNotMatchedInsertAll()
+        .whenNotMatchedInsert(
+            condition='updates.merge_id IS NULL',
+            values = {
+                'original.pizza_type_id': 'updates.pizza_type_id',
+                'original.name': 'updates.name',
+                'original.category': 'updates.category',
+                'original.ingredients': 'updates.ingredients',
+                'original.start_date': 'updates.start_date',
+                'original.end_date': 'updates.end_date',
+                'original.status': 'updates.status'
+            }
+        )
         .execute()
     )
-
-# COMMAND ----------
-
-# .whenNotMatchedInsertAll(condition='merge_id IS NULL')
 
 # COMMAND ----------
 
