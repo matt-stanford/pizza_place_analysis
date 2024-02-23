@@ -25,7 +25,7 @@ spark.conf.set('spark.databricks.cloudFiles.schemaInference.sampleSize.numFiles'
 cloud_files_conf = {
     'cloudFiles.format': 'json',
     'cloudFiles.inferColumnTypes': 'true',
-    "cloudFiles.schemaHints":"order_id BIGINT, date DATE, time TIMESTAMP",
+    "cloudFiles.schemaHints":"order_id BIGINT, date DATE",
     'cloudFiles.schemaLocation': checkpoint_path,
     'cloudFiles.schemaEvolutionMode': 'rescue',
     'rescuedDataColumn': '_rescued_data'
@@ -51,7 +51,7 @@ df = (spark.readStream
     .queryName('Orders merge')
     .option('checkpointLocation', checkpoint_path)
     .trigger(availableNow=True)
-    .start()
+    .table(f'pizza_place_bronze.{table_name}')
 )
 
 # COMMAND ----------

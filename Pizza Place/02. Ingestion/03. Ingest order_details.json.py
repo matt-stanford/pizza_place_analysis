@@ -47,7 +47,7 @@ df = (spark.readStream
     .option('checkpointLocation', checkpoint_path)
     .queryName('Order details merge')
     .trigger(availableNow=True)
-    .start()
+    .table(f'pizza_place_bronze.{table_name}')
 )
 
 # COMMAND ----------
