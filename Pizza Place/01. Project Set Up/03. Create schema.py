@@ -18,3 +18,12 @@ spark.sql(
         LOCATION '{silver_folder_path}/tables'
     '''
 )
+
+# COMMAND ----------
+
+spark.sql(
+    f'''
+    CREATE SCHEMA IF NOT EXISTS pizza_place_gold
+    LOCATION '{gold_folder_path}/tables'
+    '''
+)
